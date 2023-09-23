@@ -1,0 +1,4 @@
+2023-09-23 13:53:46		File 4.txt is Do_registered on the index server!
+2023-09-23 13:53:46		File 7.txt is Do_registered on the index server!
+2023-09-23 13:53:46		File 3.txt is Do_registered on the index server!
+2023-09-23 13:53:46		File 1.txt is Do_registered on the index server!
