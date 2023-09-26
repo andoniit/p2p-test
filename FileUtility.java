@@ -11,6 +11,17 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/*CS550 Advanced Operating Systems Programming Assignment 1 Repo
+Illinois Institute of Technology
+
+Team Name: KK Students:
+
+Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
+Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
+
+
+
 //file method handling class
 
 
