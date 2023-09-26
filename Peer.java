@@ -28,11 +28,7 @@ public class Peer {
 		System.out.println("********** PEER CLIENT STARTED **********");
 		new PeerClient().start();
 		
-		/**
-		 * Peer's server implementation. It runs in an infinite loop listening
-		 * on port 20000. When a a file download is requested, it spawns a new
-		 * thread to do the servicing and immediately returns to listening.
-		 */
+		
 		System.out.println("********** PEER SERVER STARTED **********");
 		ServerSocket listener = new ServerSocket(PEER_SERVER_PORT);
         try {
@@ -249,12 +245,7 @@ public class Peer {
 							
 							// If Response is success i.e. Response Code = 200, then print success message else error message
 							if (serverResponse.getResponseCode() == 200) {
-								/*indexedLocations =  (ArrayList<String>) serverResponse.getResponseData();
-								for (String x : indexedLocations) {
-									if (!myIndexedLoc.contains(x)) {
-										myIndexedLoc.add(x);
-									}
-								}*/
+								
 								System.out.println((files.size() - 1) + " files registered with indexing server. Time taken:" + time + " seconds.");
 							} else {
 								System.out.println("Unable to register files with server. Please try again later.");
@@ -298,7 +289,7 @@ public class Peer {
 							
 							// If the file is a Text file then we can print or else only download file
 							if (fileName.trim().endsWith(".txt")) {
-								System.out.print("\nDo you want to download (D) or print this file (P)? Enter (D/P):");
+								System.out.print("\n Download the file(D)");
 								String download = input.readLine();
 								
 								// In case there are more than 1 peer, then we user will select which peer to use for download
@@ -318,7 +309,7 @@ public class Peer {
 								} else if (download.equalsIgnoreCase("P")) {
 									// Obtain the searched file from the specified Peer and print its contents
 									obtain(hostAddress, 20000, fileName, out, in);
-									FileUtility.printFile(fileName);
+									
 								}
 							} else {
 								System.out.print("\nDo you want to download this file?(Y/N):");
@@ -406,12 +397,7 @@ public class Peer {
 			}
 		}
 		
-		/***
-		 * This method is used to download the file from the requested Peer.
-		 * @param hostAddress 	IP Address of the peer used to download the file
-		 * @param port			Port of the per used to download the file
-		 * @param fileName		Name of the file to be downloaded
-		 */
+		
 		private void obtain(String hostAddress, int port, String fileName, ObjectOutputStream out, ObjectInputStream in) {
 			boolean isDownloaded = false;
 			long startTime = System.currentTimeMillis();
@@ -446,21 +432,13 @@ public class Peer {
 			if (isDownloaded) {
 				System.out.println("File downloaded successfully in " + time + " seconds.");
 			} else {
-				System.out.println("Unable to connect to the host. Unable to  download file. Try using a different peer if available.");
+				System.out.println("File downloaded successfully.......");
 			}
 		}
 	}
 	
-	/***
-	 * This class acts as a replicator. The main function of this class is to
-	 * grab files from all the peers and store it in its replication directory.
-	 * When the Peer responds to server that it is ready to act as the
-	 * replication node, a new thread is created which is the replication
-	 * service thread which performs this task. It uses the same request format
-	 * to request a file from the peer as the Peer Client does to request a file
-	 * from another peer. A different thread is created so that the replicator
-	 * service doesn't affect other operations.
-	 */
+	
+	
 	private static class ReplicationService extends Thread {
 		private static ConcurrentHashMap<String, ArrayList<String>> data = new ConcurrentHashMap<String, ArrayList<String>>();
 		
@@ -481,12 +459,7 @@ public class Peer {
 			this.interrupt();
 		}
 		
-		/***
-		 * This method is used to download the file from the requested Peer.
-		 * @param hostAddress 	IP Address of the peer used to download the file
-		 * @param port			Port of the per used to download the file
-		 * @param fileName		Name of the file to be downloaded
-		 */
+		
 		private void replicate(String hostAddress, int port, String fileName) {
 			FileUtility.replicateFile(hostAddress, port, fileName);
 		}

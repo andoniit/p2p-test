@@ -10,23 +10,26 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
-/***
- * This class provides various file related methods like downloading file,
- * getting all files from a given location, printing text file etc.
- */
+
+/*CS550 Advanced Operating Systems Programming Assignment 1 Repo
+Illinois Institute of Technology
+
+Team Name: KK Students:
+
+Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
+Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
+
+
+
 public class FileUtility {
 
 	private static final String downloadLocation = "downloads/";
-	private static final String replicaLocation = "replica/";
+	private static final String replicaLocation = "downloads/";
 	private static final int BUFFER_SIZE = 1024 * 64; // 64 KiloBytes
 	
-	/***
-	 * This method retrieves all the files from the given path.
-	 * @param path	Path whose files are to be returned
-	 * @return		Filename of all the files contained in the given path
-	 */
+
+
 	public static ArrayList<String> getFiles(String path) {
 		ArrayList<String> files = new ArrayList<String>();
 		File folder = new File(path);
@@ -51,12 +54,10 @@ public class FileUtility {
 		return files;
 	}
 	
-	/***
-	 * This method finds the location of the file amongst the given locations.
-	 * @param fileName	Name of the file whose location is to be searched
-	 * @param locations	List of all the locations in which file has to be located
-	 * @return			Returns the path where the file is located
-	 */
+	
+
+
+
 	public static String getFileLocation(String fileName, List<String> locations) {
 		String fileLocation = "";
 		boolean fileFound = false;
@@ -77,13 +78,9 @@ public class FileUtility {
 		return fileLocation;
 	}
 	
-	/***
-	 * This method downloads the specified file from the specified host (peer).
-	 * @param hostAddress	IP Address of the peer from which the file has to be downloaded
-	 * @param port			Port of the peer from which the file has to be downloaded
-	 * @param fileName		Name of the file to be downloaded
-	 * @return				Returns true if the file is successfully downloaded else returns false
-	 */
+	
+
+	
 	public static boolean downloadFile(String hostAddress, int port, String fileName) {
 		InputStream in = null;
 		BufferedOutputStream fileOutput = null;
@@ -162,14 +159,11 @@ public class FileUtility {
 		return isDownloaded;
 	}
 	
-	/***
-	 * This method replicates the specified file from the specified host (peer) to the self node.
-	 * This method is same as downloadFile(...) with minor modifications
-	 * @param hostAddress	IP Address of the peer from which the file has to be replicated
-	 * @param port			Port of the peer from which the file has to be replicated
-	 * @param fileName		Name of the file to be replicated
-	 * @return				Returns true if the file is successfully replicated else returns false
-	 */
+	
+
+
+
+
 	public static boolean replicateFile(String hostAddress, int port, String fileName) {
 		InputStream in = null;
 		BufferedOutputStream fileOutput = null;
@@ -248,12 +242,7 @@ public class FileUtility {
 		return isReplicated;
 	}
 
-	/***
-	 * This method prints the content of the text file after downloading it from the specified host (peer).
-	 * @param hostAddress	IP Address of the peer from which the file has to be printed after downloading
-	 * @param port			Port of the peer from which the file has to be printed after downloading
-	 * @param fileName		Name of the text file to be printed after downloading
-	 */
+	
 	public static void printFile(String fileName) {
 		File file = new File(downloadLocation + fileName);
 		if (file.exists()) {
@@ -289,19 +278,5 @@ public class FileUtility {
 		}
 	}
 	
-	/*public static void main(String[] args) {
-		Scanner input = new Scanner(System.in);
-		String path = input.nextLine();
-		ArrayList<String> files = FileUtility.getFiles(path);
-		
-		for(String file : files) {
-			System.out.println(file);
-		}
-	}*/
 	
-	/*public static void main(String[] args) {
-		File file = new File(downloadLocation);
-		if (!file.exists())
-				file.mkdir();
-	}*/
 }
