@@ -16,6 +16,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/*CS550 Advanced Operating Systems Programming Assignment 1 Repo
+Illinois Institute of Technology
+
+Team Name: KK Students:
+
+Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
+Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
+
+/*
+ * Peer Class
+ * This class acts as client as well as server 
+ * and functions like 
+ * regester 
+ * look
+ * downlaod 
+ * unresister 
+ * exit 
+ */
+
+
 public class Peer {
 	
 	// myIndexedLoc stores the list of all the locations whose files are registered with the Indexing Server.
@@ -24,100 +45,146 @@ public class Peer {
 	private static final String REPLICATION_PATH = "replica/";
 	
 	public static void main(String[] args) throws IOException {
-		// Start a new Thread which acts as Client on Peer side
-		System.out.println("********** PEER CLIENT STARTED **********");
-		new PeerClient().start();
-		
-		
-		System.out.println("********** PEER SERVER STARTED **********");
-		ServerSocket listener = new ServerSocket(PEER_SERVER_PORT);
-        try {
-            while (true) {
-                new PeerServer(listener.accept()).start();
-            }
-        } finally {
-            listener.close();
-        }
+		startPeerClient();
+		startPeerServer();
 	}
 	
+	private static void startPeerClient() {
+		System.out.println("PEER CLIENT STARTED");
+		new PeerClient().start();
+	}
+	
+	private static void startPeerServer() {
+		System.out.println("PEER SERVER STARTED......");
+		ServerSocket listener = null;
+	
+		try {
+			listener = new ServerSocket(PEER_SERVER_PORT);
+			while (true) {
+				new PeerServer(listener.accept()).start();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (listener != null) {
+				try {
+					listener.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	//=============================================================================
 	private static class PeerServer extends Thread {
 		private Socket socket;
-		private LogUtility log = new LogUtility("peer");
-		
-        public PeerServer(Socket socket) {
-            this.socket = socket;
-            log.wlog("File downloading with " + socket.getInetAddress() + " started.");
-        }
-        
-        // Services this thread's peer client by sending the requested file.
+		private LogMaker log = new LogMaker("peer");
+	
+		public PeerServer(Socket socket) {
+			this.socket = socket;
+			log.wlog("File downloading with " + socket.getInetAddress() + " started.");
+		}
+	
+		@Override
 		public void run() {
 			OutputStream out = null;
 			ObjectInputStream in = null;
 			BufferedInputStream fileInput = null;
-			
+	
 			try {
 				String clientIp = socket.getInetAddress().getHostAddress();
 				log.wlog("Serving download request for " + clientIp);
-				
+	
 				in = new ObjectInputStream(socket.getInputStream());
 				Request request = (Request) in.readObject();
-				
+	
 				if (request.getRequestType().equalsIgnoreCase("DOWNLOAD")) {
-					String fileName = (String) request.getRequestData();
-					String fileLocation = FileUtility.getFileLocation(fileName, myIndexedLoc);
-					log.wlog("Uploding/Sending file " + fileName);
-					
-					File file = new File(fileLocation + fileName);
-					byte[] mybytearray = new byte[(int) file.length()];
-					fileInput = new BufferedInputStream(new FileInputStream(file));
-					fileInput.read(mybytearray, 0, mybytearray.length);
-					out = socket.getOutputStream();
-					out.write(mybytearray, 0, mybytearray.length);
-					out.flush();
-					log.wlog("File sent successfully.");
+					handleDownloadRequest(request);
 				} else if (request.getRequestType().equalsIgnoreCase("REPLICATE_DATA")) {
-					ConcurrentHashMap<String, ArrayList<String>> data = (ConcurrentHashMap<String, ArrayList<String>>) request.getRequestData();
-					new ReplicationService(data).start();
+					handleReplicateDataRequest(request);
 				} else if (request.getRequestType().equalsIgnoreCase("DELETE_DATA")) {
-					ArrayList<String> deleteFiles = (ArrayList<String>) request.getRequestData();
-					if (deleteFiles != null) {
-						for (String fileName : deleteFiles) {
-							File file = new File(REPLICATION_PATH + fileName);
-							file.delete();
-							file = null;
-						}
-					}
+					handleDeleteDataRequest(request);
 				}
 			} catch (Exception e) {
-				log.wlog("Error in sending file.");
-				log.wlog("ERROR:" + e);
+				log.wlog("Error in serving the request.");
+				log.wlog("ERROR: " + e);
 			} finally {
-				try {
-					// Closing all streams. Close the stream only if it is initialized
-					if (out != null)
-						out.close();
-					
-					if (in != null)
-						in.close();
-					
-					if (fileInput != null)
-						fileInput.close();
-					
-					if (socket != null)
-						socket.close();
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
+				closeStreams(out, in, fileInput, socket);
 				Thread.currentThread().interrupt();
 			}
 		}
+	
+	//=============================================================================
 
+
+		private void handleDownloadRequest(Request request) throws IOException, ClassNotFoundException {
+			String fileName = (String) request.getRequestData();
+			String fileLocation = FileManager.getFileLocation(fileName, myIndexedLoc);
+			log.wlog("Uploading/Sending file " + fileName);
+	
+			File file = new File(fileLocation + fileName);
+			byte[] mybytearray = new byte[(int) file.length()];
+			try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(file));
+				 OutputStream out = socket.getOutputStream()) {
+				fileInput.read(mybytearray, 0, mybytearray.length);
+				out.write(mybytearray, 0, mybytearray.length);
+				out.flush();
+			}
+			log.wlog("File sent successfully.");
+		}
+	
+
+	//=============================================================================
+
+		private void handleReplicateDataRequest(Request request) {
+			final ConcurrentHashMap<String, ArrayList<String>> data = (ConcurrentHashMap<String, ArrayList<String>>) request.getRequestData();
+			new ReplicationService(data).start();
+		}
+	
+	//=============================================================================
+
+
+		private void handleDeleteDataRequest(Request request) {
+			final ArrayList<String> deleteFiles = (ArrayList<String>) request.getRequestData();
+			if (deleteFiles != null) {
+				for (String fileName : deleteFiles) {
+					File file = new File(REPLICATION_PATH + fileName);
+					file.delete();
+					file = null;
+				}
+			}
+		}
+		//=============================================================================
+
+		private void closeStreams(OutputStream out, ObjectInputStream in, BufferedInputStream fileInput, Socket socket) {
+			try {
+				if (out != null)
+					out.close();
+	
+				if (in != null)
+					in.close();
+	
+				if (fileInput != null)
+					fileInput.close();
+	
+				if (socket != null)
+					socket.close();
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+	
 		@Override
 		public void interrupt() {
 			log.closeLogger();
 			super.interrupt();
 		}
 	}
+
+	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	
 	private static class PeerClient extends Thread {
 		
@@ -137,7 +204,7 @@ public class Peer {
 		        long startTime, endTime;
 		        double time;
 		        
-		        if(serverAddress.trim().length() == 0 || !IPAddressValidator.validate(serverAddress)) {
+		        if(serverAddress.trim().length() == 0 || !IPValidator.validate(serverAddress)) {
 					System.out.println("Invalid Server IP Address.");
 					System.exit(0);
 				}
@@ -168,7 +235,7 @@ public class Peer {
 					myIndexedLoc.add(REPLICATION_PATH);
 					serverResponse = (Response) in.readObject();
 					ConcurrentHashMap<String, ArrayList<String>> data = (ConcurrentHashMap<String, ArrayList<String>>) serverResponse.getResponseData();
-					new ReplicationService(data).start();
+					
 				}
 				
 				// Previously indexed locations if any
@@ -181,15 +248,15 @@ public class Peer {
 						}
 					}
 				}
-				
+					//=============================================================================
+
 		        while (true) {
 		        	// Display different choices to the user
 		        	System.out.println("\nWhat do you want to do?");
-			        System.out.println("1.Register files with indexing server.");
-			        System.out.println("2.Lookup for a file at index server.");
-			        System.out.println("3.Un-register all files of this peer from the indexing server.");
-			        System.out.println("4.Print download log of this peer.");
-			        System.out.println("5.Exit.");
+			        System.out.println("(1).Register files.");
+			        System.out.println("(2).Lookup for a file.");
+			        System.out.println("(3).Un-register all files.");
+			        System.out.println("(4).Exit.");
 			        System.out.print("Enter choice and press ENTER:");
 			        int option;
 			        
@@ -215,7 +282,7 @@ public class Peer {
 						}
 						
 						// Retrieve all the files from the user's specified location
-						ArrayList<String> files = FileUtility.getFiles(path);
+						ArrayList<String> files = FileManager.getFiles(path);
 						
 						// Add the user's entered file/path to peer's indexed location's list
 						File file = new File(path);
@@ -287,7 +354,8 @@ public class Peer {
 								}
 							}
 							
-							// If the file is a Text file then we can print or else only download file
+							
+							
 							if (fileName.trim().endsWith(".txt")) {
 								System.out.print("\n Download the file(D)");
 								String download = input.readLine();
@@ -355,13 +423,9 @@ public class Peer {
 						}
 						break;
 						
-					// Printing the download log
-					case 4:
-						(new LogUtility("peer")).printLogs();
-						break;
 						
 					// Handling Peer exit functionality
-					case 5:
+					case 4:
 						// Setup a Request object with Request Type = DISCONNECT and Request Data = general message
 						peerRequest = new Request();
 						peerRequest.setRequestType("DISCONNECT");
@@ -397,12 +461,14 @@ public class Peer {
 			}
 		}
 		
+			//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 		
 		private void obtain(String hostAddress, int port, String fileName, ObjectOutputStream out, ObjectInputStream in) {
 			boolean isDownloaded = false;
 			long startTime = System.currentTimeMillis();
 			
-			if (!FileUtility.downloadFile(hostAddress, port, fileName)) {
+			if (!FileManager.downloadFile(hostAddress, port, fileName)) {
 				try {
 					Request peerRequest = new Request();
 					peerRequest.setRequestType("GET_BACKUP_NODES");
@@ -410,11 +476,11 @@ public class Peer {
 					out.writeObject(peerRequest);
 				
 					Response serverResponse = (Response) in.readObject();
-					List<String> backupNodes = (List<String>) serverResponse.getResponseData();
+					final List<String> backupNodes = (List<String>) serverResponse.getResponseData();
 					
 					//System.out.println(backupNodes);
 					for (String node : backupNodes) {
-						if(FileUtility.downloadFile(node, port, fileName)) {
+						if(FileManager.downloadFile(node, port, fileName)) {
 							isDownloaded = true;
 							break;
 						}
@@ -432,12 +498,13 @@ public class Peer {
 			if (isDownloaded) {
 				System.out.println("File downloaded successfully in " + time + " seconds.");
 			} else {
-				System.out.println("File downloaded successfully.......");
+				System.out.println("Unable to downlaod the file..........");
 			}
 		}
 	}
 	
-	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	
 	private static class ReplicationService extends Thread {
 		private static ConcurrentHashMap<String, ArrayList<String>> data = new ConcurrentHashMap<String, ArrayList<String>>();
@@ -461,7 +528,7 @@ public class Peer {
 		
 		
 		private void replicate(String hostAddress, int port, String fileName) {
-			FileUtility.replicateFile(hostAddress, port, fileName);
+			FileManager.replicateFile(hostAddress, port, fileName);
 		}
 	}
 }

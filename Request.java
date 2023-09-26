@@ -9,6 +9,8 @@ Team Name: KK Students:
 Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
 Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
 
+// class used to identify if node want to request something 
+
 
 public class Request implements Serializable {
 	

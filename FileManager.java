@@ -1,9 +1,6 @@
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -20,12 +17,16 @@ Team Name: KK Students:
 Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
 Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
 
+/*
+ * This class handles all file related operations 
+ * like get file loaction, file downlaod, replicate file
+ * 
+ */
 
-
-public class FileUtility {
+public class FileManager {
 
 	private static final String downloadLocation = "downloads/";
-	private static final String replicaLocation = "downloads/";
+	private static final String replicaLocation = "replica/";
 	private static final int BUFFER_SIZE = 1024 * 64; // 64 KiloBytes
 	
 
@@ -55,6 +56,7 @@ public class FileUtility {
 	}
 	
 	
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
@@ -78,7 +80,8 @@ public class FileUtility {
 		return fileLocation;
 	}
 	
-	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 	
 	public static boolean downloadFile(String hostAddress, int port, String fileName) {
@@ -131,13 +134,10 @@ public class FileUtility {
 		} catch(SocketException e) {
 			//System.out.println("Unable to connect to the host. Unable to  download file. Try using a different peer if available.");
 			isDownloaded = false;
-			//System.out.println("Error:" + e);
-			//e.printStackTrace();
+			
 		} catch (Exception e) {
-			//System.out.println("Unable to download file. Please check if you have write permission.");
 			isDownloaded = false;
-			//System.out.println("Error:" + e);
-			//e.printStackTrace();
+			
 		} finally {
 			try {
 				// Closing all streams. Close the stream only if it is initialized
@@ -159,7 +159,8 @@ public class FileUtility {
 		return isDownloaded;
 	}
 	
-	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 
 
@@ -170,7 +171,7 @@ public class FileUtility {
 		ObjectOutputStream out = null;
 		Socket socket = null;
 		boolean isReplicated = false;
-		LogUtility log = new LogUtility("replication");
+		LogMaker log = new LogMaker("replication");
 		
 		try {
 			long startTime = System.currentTimeMillis();
@@ -243,40 +244,7 @@ public class FileUtility {
 	}
 
 	
-	public static void printFile(String fileName) {
-		File file = new File(downloadLocation + fileName);
-		if (file.exists()) {
-			System.out.println("\nTHE FILE HAS BEEN DOWNLOADED TO THE downloads FOLDER IN THE CURRENT LOCATION");
-			System.out.println("AND THE CONTENTS OF THE FILE ARE BELOW. PRINTING ONLY FIRST 1000 CHARACTERS.");
-			System.out.println("=========================================================================");
-			BufferedReader br = null;
-			int charCount = 0;
-			
-			try {
-				// Printing file using FileReader
-				br = new BufferedReader(new FileReader(downloadLocation + fileName));
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					System.out.println(line);
-					charCount += line.length();
-					if(charCount > 1000) break;
-				}
-			} catch (Exception e) {
-				System.out.println("Unable to print file.");
-				System.out.println("Error:" + e);
-			} finally {
-				try {
-					if (br != null)
-						br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			System.out.println("=========================================================================");
-		} else {
-			System.out.println("\nThe file could not be printed because it may not have been downloaded.");
-		}
-	}
-	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	
 }

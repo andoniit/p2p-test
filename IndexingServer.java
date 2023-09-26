@@ -21,15 +21,29 @@ Team Name: KK Students:
 Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
 Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
 
-
+/*
+ * Indexing Server
+ * This class is a Server of the system which regesters peers and stores 
+ * files information and log files
+ */
 
 public class IndexingServer {
 
+
+     // ConcurrentHashMap to store the index of files and their locations
     private static ConcurrentHashMap<String, ArrayList<String>> fileIndex = new ConcurrentHashMap<>();
+    // ConcurrentHashMap to store peer information and their shared files
     private static ConcurrentHashMap<String, ArrayList<String>> peerFileLocations = new ConcurrentHashMap<>();
+    // List to maintain replication nodes for fault tolerance
     private static List<String> replicationNodes = Collections.synchronizedList(new ArrayList<>());
+
+    // Ports for the server and peer communication
+
     private static final int SERVER_PORT = 10000;
     private static final int PEER_PORT = 20000;
+
+
+   // Folder for storing replicated files
     private static final String REPLICATION_FOLDER = "replica/";
 
     private static int peerCount = 0;
@@ -37,6 +51,8 @@ public class IndexingServer {
     public static void main(String[] args) throws Exception {
         System.out.println("Indexing Server Started...");
         int peerId = 1;
+        
+        // Create a server socket to listen for incoming peer connections
 
         ServerSocket listener = new ServerSocket(SERVER_PORT);
         try {

@@ -16,7 +16,5 @@ is_server:
 is_peer:
 	$(JR) Peer
 
-is_test:
-	$(JR) Test 
 
-.PHONY: default all clean is_server is_peer is_test
+.PHONY: default all clean is_server is_peer

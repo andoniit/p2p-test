@@ -16,13 +16,19 @@ Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
 Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
 
 
-public class LogUtility {
+/*
+ * This class Handles all the log files operations 
+ * downlaod.log
+ * replica.log
+ */
+
+public class LogMaker {
 
     private String logFileName = "";
     private BufferedWriter logWriter = null;
     private final String logDirectory = "logs/";
 
-    public LogUtility(String logType) {
+    public LogMaker(String logType) {
         try {
             if (logType.equalsIgnoreCase("Peer")) {
                 logFileName = "download.log";

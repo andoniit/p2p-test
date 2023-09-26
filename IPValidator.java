@@ -10,8 +10,9 @@ Team Name: KK Students:
 Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
 Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
 
+// This class if the provided IP address is correct/valid
 
-public class IPAddressValidator {
+public class IPValidator {
     private static final String IPADDRESS_PATTERN =
         "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
       + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."

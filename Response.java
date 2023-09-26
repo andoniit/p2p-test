@@ -10,6 +10,9 @@ Team Name: KK Students:
 Anirudha Kapileshwari (akapileshwari@hawk.iit.edu)
 Mugdha Atul Kulkarni (mkulkarni2@hawk.iit.edu) */
 
+
+//class to send send response to the coming request
+
 public class Response implements Serializable {
 
 	private int responseCode;
