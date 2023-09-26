@@ -67,6 +67,7 @@ public class Test {
 			e.printStackTrace();
 		}
 	}
+	  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	private static class LookupTest extends Thread {
 		private String serverAddress;
@@ -105,7 +106,7 @@ public class Test {
 				}
 				avgTime = (double) Math.round(totalTime / (double) TEST_COUNT) / 1000;
 
-				System.out.println("Average lookup time for " + TEST_COUNT + " lookup requests is " + avgTime + " seconds.");
+				System.out.println("Average Search time for " + TEST_COUNT + " Search requests is " + avgTime + " seconds.");
 				input.readLine();
 				this.interrupt();
 			} catch (Exception e) {
@@ -127,12 +128,13 @@ public class Test {
 			}
 		}
 	}
-	
+	 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	private static class DownloadTest extends Thread {
 		private String peerAddress;
 		private String fileName;
-		private static int counter = 1;
-		
+
+
 		public DownloadTest(String host, String file) {
 			this.peerAddress = host;
 			this.fileName = file;
@@ -157,7 +159,7 @@ public class Test {
 				time = (double) Math.round(totalTime / 1000.0);
 				avgSpeed = (totalFileSize / (1024 * 1024)) / time;
 				
-				System.out.println("Average speed for downloading " + TEST_COUNT + " files is " + avgSpeed + " MBps. \nPress ENETER.");
+				System.out.println("Average speed for search and Transfer " + TEST_COUNT + " files is " + avgSpeed + " MBps. \nPress ENETER.");
 				input.readLine();
 				this.interrupt();
 			} catch (Exception e) {
